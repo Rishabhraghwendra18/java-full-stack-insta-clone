@@ -39,7 +39,13 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public User signIn(User user) {
-        return null;
+        if(user.getEmail() == null){
+            throw new MissingFieldException("Email is missing");
+        }
+        if(user.getPassword() == null){
+            throw new MissingFieldException("Password is missing");
+        }
+        return userRepo.findByEmailAndPassword(user.getEmail(),user.getPassword());
     }
 
     @Override

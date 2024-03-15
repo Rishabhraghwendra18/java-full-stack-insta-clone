@@ -20,6 +20,10 @@ public class UserController {
     public User signUp(@RequestBody User user){
         return userService.signUp(user);
     }
+    @PostMapping("/sign-in")
+    public User signIn(@RequestBody User user){
+        return userService.signIn(user);
+    }
     @ExceptionHandler
     public ResponseEntity<ErrorResponse> handleException(MissingFieldException exec){
         ErrorResponse err = new ErrorResponse(exec.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY.value());
