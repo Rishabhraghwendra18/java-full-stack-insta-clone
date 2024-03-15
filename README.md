@@ -14,3 +14,5 @@
     - [POST] comment/post-id
 
 # ER Digram
+![image](https://github.com/Rishabhraghwendra18/java-full-stack-insta-clone/assets/43534227/7edd2fea-0da8-4218-a630-4a6274a2fc55)
+
