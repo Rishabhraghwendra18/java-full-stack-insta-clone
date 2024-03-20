@@ -5,18 +5,24 @@ import com.instagram.server.collection.User;
 import com.instagram.server.exceptions.AlreadyExistsException;
 import com.instagram.server.exceptions.MissingFieldException;
 import com.instagram.server.repository.UserRepo;
+import com.instagram.server.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserServiceImpl implements UserService{
 
     private UserRepo userRepo;
+    private JwtUtil jwtUtil;
     public UserServiceImpl(){}
 
     @Autowired
-    public UserServiceImpl(UserRepo userRepo) {
+    public UserServiceImpl(UserRepo userRepo,JwtUtil jwtUtil) {
+
         this.userRepo = userRepo;
+        this.jwtUtil=jwtUtil;
     }
 
     @Override
@@ -38,14 +44,22 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public User signIn(User user) {
-        if(user.getEmail() == null){
+    public ResponseEntity<JwtResponse> signIn(JwtRequest jwtRequest) {
+        if(jwtRequest.getEmail() == null){
             throw new MissingFieldException("Email is missing");
         }
-        if(user.getPassword() == null){
+        if(jwtRequest.getPassword() == null){
             throw new MissingFieldException("Password is missing");
         }
-        return userRepo.findByEmailAndPassword(user.getEmail(),user.getPassword());
+        User loggedInUser = userRepo.findByEmailAndPassword(jwtRequest.getEmail(),jwtRequest.getPassword());
+        System.out.println("Sign in: "+loggedInUser);
+        if(loggedInUser != null){
+            String token = jwtUtil.generateToken(loggedInUser);
+            JwtResponse response = new JwtResponse(token,loggedInUser.getUsername());
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+        JwtResponse response = new JwtResponse(null,null);
+        return new ResponseEntity<>(response,HttpStatus.NOT_FOUND);
     }
 
     @Override
