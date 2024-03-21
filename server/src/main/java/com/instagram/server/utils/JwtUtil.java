@@ -26,7 +26,6 @@ public class JwtUtil {
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
-        System.out.println("secret is: "+SECRET_KEY);
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)

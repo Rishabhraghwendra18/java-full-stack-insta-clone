@@ -9,20 +9,26 @@ import com.instagram.server.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
 
     private UserRepo userRepo;
     private JwtUtil jwtUtil;
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
     public UserServiceImpl(){}
 
     @Autowired
-    public UserServiceImpl(UserRepo userRepo,JwtUtil jwtUtil) {
+    public UserServiceImpl(UserRepo userRepo,JwtUtil jwtUtil, BCryptPasswordEncoder bCryptPasswordEncoder) {
 
         this.userRepo = userRepo;
         this.jwtUtil=jwtUtil;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
     @Override
@@ -40,6 +46,8 @@ public class UserServiceImpl implements UserService{
         if(existingUser !=null){
             throw new AlreadyExistsException("User already exists");
         }
+        String encryptedPassword = bCryptPasswordEncoder.encode(user.getPassword());
+        user.setPassword(encryptedPassword);
         return userRepo.save(user);
     }
 
@@ -51,19 +59,40 @@ public class UserServiceImpl implements UserService{
         if(jwtRequest.getPassword() == null){
             throw new MissingFieldException("Password is missing");
         }
-        User loggedInUser = userRepo.findByEmailAndPassword(jwtRequest.getEmail(),jwtRequest.getPassword());
-        System.out.println("Sign in: "+loggedInUser);
+        User loggedInUser = loadUser(jwtRequest.getEmail());
         if(loggedInUser != null){
-            String token = jwtUtil.generateToken(loggedInUser);
-            JwtResponse response = new JwtResponse(token,loggedInUser.getUsername());
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            if(bCryptPasswordEncoder.matches(jwtRequest.getPassword(),loggedInUser.getPassword())){
+                String token = jwtUtil.generateToken(loggedInUser);
+                JwtResponse response = new JwtResponse(token,loggedInUser.getUsername(),null);
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            }
+            else {
+                JwtResponse response = new JwtResponse(null,null,"Password don't match");
+                return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);
+            }
         }
-        JwtResponse response = new JwtResponse(null,null);
+        JwtResponse response = new JwtResponse(null,null,"User not found");
         return new ResponseEntity<>(response,HttpStatus.NOT_FOUND);
+    }
+
+    private User loadUser(String email){
+        return userRepo.findByEmail(email);
     }
 
     @Override
     public String post(Post post) {
         return null;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        if(email.isEmpty()){
+            throw new UsernameNotFoundException("Provide email");
+        }
+        User loggedUser = loadUser(email);
+        if (loggedUser == null){
+            throw new UsernameNotFoundException("User not found - 404");
+        }
+        return new UserDetailsWrapperImpl(loggedUser);
     }
 }
