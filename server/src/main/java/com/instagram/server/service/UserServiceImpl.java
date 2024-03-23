@@ -5,12 +5,15 @@ import com.instagram.server.collection.User;
 import com.instagram.server.exceptions.AlreadyExistsException;
 import com.instagram.server.exceptions.MissingFieldException;
 import com.instagram.server.repository.UserRepo;
+import com.instagram.server.requestResponse.CommonResponse;
+import com.instagram.server.requestResponse.JwtRequest;
+import com.instagram.server.requestResponse.JwtResponse;
+import com.instagram.server.requestResponse.SignUpRequest;
 import com.instagram.server.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,7 +35,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User signUp(User user) {
+    public ResponseEntity<CommonResponse> signUp(SignUpRequest user) {
         if(user.getUsername()==null){
             throw new MissingFieldException("Username is missing");
         }
@@ -48,7 +51,8 @@ public class UserServiceImpl implements UserService {
         }
         String encryptedPassword = bCryptPasswordEncoder.encode(user.getPassword());
         user.setPassword(encryptedPassword);
-        return userRepo.save(user);
+        User newUser = new User(user.getUsername(),user.getEmail(),user.getPassword(),user.getProfilePhoto(),null);
+        return new ResponseEntity<>(new CommonResponse("Account Created Successfully",false,HttpStatus.OK.value()),HttpStatus.OK);
     }
 
     @Override
@@ -63,6 +67,7 @@ public class UserServiceImpl implements UserService {
         if(loggedInUser != null){
             if(bCryptPasswordEncoder.matches(jwtRequest.getPassword(),loggedInUser.getPassword())){
                 String token = jwtUtil.generateToken(loggedInUser);
+                generateRefreshTokenAndSaveToDatabase(loggedInUser);
                 JwtResponse response = new JwtResponse(token,loggedInUser.getUsername(),null);
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }
@@ -73,6 +78,11 @@ public class UserServiceImpl implements UserService {
         }
         JwtResponse response = new JwtResponse(null,null,"User not found");
         return new ResponseEntity<>(response,HttpStatus.NOT_FOUND);
+    }
+    private void generateRefreshTokenAndSaveToDatabase(User user){
+        String token =jwtUtil.generateRefreshToken(user);
+        user.setRefreshToken(token);
+        userRepo.save(user);
     }
 
     private User loadUser(String email){

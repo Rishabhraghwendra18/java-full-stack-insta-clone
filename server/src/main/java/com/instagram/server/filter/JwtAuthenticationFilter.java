@@ -36,6 +36,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 boolean isTokenValid = jwtUtil.validateToken(jwtToken);
                 if(isTokenValid){
                     Claims claims = jwtUtil.getAllClaimsFromToken(jwtToken);
+                    System.out.println("Claim:: "+claims.toString());
                 if(SecurityContextHolder.getContext().getAuthentication() == null){
 //                    creating a user object to store it in security context holder
                     User user = new User(claims.getSubject(),claims.get("email").toString(),null,null,null);

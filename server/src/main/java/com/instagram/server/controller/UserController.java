@@ -5,8 +5,10 @@ import com.instagram.server.collection.User;
 import com.instagram.server.exceptions.AlreadyExistsException;
 import com.instagram.server.exceptions.ErrorResponse;
 import com.instagram.server.exceptions.MissingFieldException;
-import com.instagram.server.service.JwtRequest;
-import com.instagram.server.service.JwtResponse;
+import com.instagram.server.requestResponse.CommonResponse;
+import com.instagram.server.requestResponse.JwtRequest;
+import com.instagram.server.requestResponse.JwtResponse;
+import com.instagram.server.requestResponse.SignUpRequest;
 import com.instagram.server.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +25,7 @@ public class UserController {
         this.userService=userService;
     }
     @PostMapping("/sign-up")
-    public User signUp(@RequestBody User user){
+    public ResponseEntity<CommonResponse> signUp(@RequestBody SignUpRequest user){
         return userService.signUp(user);
     }
     @PostMapping("/sign-in")

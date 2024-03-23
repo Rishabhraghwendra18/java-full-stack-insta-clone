@@ -18,19 +18,28 @@ public class JwtUtil {
 
     private static final String SECRET_KEY = "QO1S52zJW5FVHq84B9E6n0c2LW4uGhdOJKqMkG2exBLdwsTLo9cMlzH8pF4fYjR7HzYX8VIxT62pWukIotMv54vDu6PQq8gakqCvdA0GiWmTUSblEyDxLs9PfSNryUx"; // Replace with your actual secret key
     public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60;
+    public static final long JWT_REFRESH_TOKEN_VALIDITY = 24 * 60 * 60;
 
-    public String generateToken(User userDetails) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("email", userDetails.getEmail());
-        return createToken(claims, userDetails.getUsername());
+    public String generateToken(User user) {
+        Map<String, Object> claims = generateClaims(user);
+        return createToken(claims, user.getUsername(),JWT_TOKEN_VALIDITY);
     }
-
-    private String createToken(Map<String, Object> claims, String subject) {
+    public String generateRefreshToken(User user){
+        Map<String, Object> claims = generateClaims(user);
+        return createToken(claims,user.getEmail(),JWT_REFRESH_TOKEN_VALIDITY);
+    }
+    private Map<String,Object> generateClaims(User user){
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("email", user.getEmail());
+        claims.put("id",user.getId());
+        return claims;
+    }
+    private String createToken(Map<String, Object> claims, String subject,long tokenValidity) {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
+                .setExpiration(new Date(System.currentTimeMillis() + tokenValidity * 1000))
                 .signWith(SignatureAlgorithm.HS512, SECRET_KEY)
                 .compact();
     }

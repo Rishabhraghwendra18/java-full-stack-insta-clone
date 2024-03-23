@@ -1,4 +1,4 @@
-package com.instagram.server.service;
+package com.instagram.server.requestResponse;
 
 public class JwtRequest {
     private String email;
