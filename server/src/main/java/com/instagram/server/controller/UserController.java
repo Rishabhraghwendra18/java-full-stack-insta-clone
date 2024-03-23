@@ -33,11 +33,8 @@ public class UserController {
         return userService.signIn(user);
     }
     @PostMapping("/post")
-    public Post uploadPost(@RequestBody Post post){
-        List<String>comments = new ArrayList<>();
-        comments.add("Nice post");
-        Post demoPost = new Post("google.com","It's google",0,comments,"abced");
-        return demoPost;
+    public ResponseEntity<CommonResponse> uploadPost(@RequestBody Post post, @RequestHeader("Authorization") String token){
+        return userService.post(post,token);
     }
     @ExceptionHandler
     public ResponseEntity<ErrorResponse> handleException(MissingFieldException exec){

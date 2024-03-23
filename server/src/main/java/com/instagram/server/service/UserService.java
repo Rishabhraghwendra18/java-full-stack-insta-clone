@@ -12,5 +12,5 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 public interface UserService extends UserDetailsService {
     public ResponseEntity<CommonResponse> signUp(SignUpRequest user);
     public ResponseEntity<JwtResponse> signIn(JwtRequest jwtRequest);
-    public String post(Post post);
+    public ResponseEntity<CommonResponse> post(Post post, String jwtToken);
 }
