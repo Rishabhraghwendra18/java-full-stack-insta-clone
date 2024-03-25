@@ -15,14 +15,14 @@ public class Post {
     private String photoUrl;
     private String caption;
     private int likes;
-    private List<String> comments;
+    private List<PostComments> comments;
     private String userId;
     public Post(){
         this.likes=0;
         this.comments= new ArrayList<>();
     }
 
-    public Post(String photoUrl, String caption, int likes, List<String> comments, String userId) {
+    public Post(String photoUrl, String caption, int likes, List<PostComments> comments, String userId) {
         this.photoUrl = photoUrl;
         this.caption = caption;
         this.likes = likes;
@@ -62,11 +62,11 @@ public class Post {
         this.likes = likes;
     }
 
-    public List<String> getComments() {
+    public List<PostComments> getComments() {
         return comments;
     }
 
-    public void setComments(List<String> comments) {
+    public void setComments(List<PostComments> comments) {
         this.comments = comments;
     }
 
