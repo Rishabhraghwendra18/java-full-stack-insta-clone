@@ -4,6 +4,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @EntityScan
@@ -16,7 +17,10 @@ public class Post {
     private int likes;
     private List<String> comments;
     private String userId;
-    public Post(){}
+    public Post(){
+        this.likes=0;
+        this.comments= new ArrayList<>();
+    }
 
     public Post(String photoUrl, String caption, int likes, List<String> comments, String userId) {
         this.photoUrl = photoUrl;

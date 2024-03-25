@@ -13,6 +13,7 @@ import com.instagram.server.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +34,8 @@ public class UserController {
         return userService.signIn(user);
     }
     @PostMapping("/post")
-    public ResponseEntity<CommonResponse> uploadPost(@RequestBody Post post, @RequestHeader("Authorization") String token){
-        return userService.post(post,token);
+    public ResponseEntity<CommonResponse> uploadPost(@RequestParam("file") MultipartFile file, @RequestParam("text") String text,@RequestHeader("Authorization") String token){
+        return userService.post(file,text,token);
     }
     @ExceptionHandler
     public ResponseEntity<ErrorResponse> handleException(MissingFieldException exec){

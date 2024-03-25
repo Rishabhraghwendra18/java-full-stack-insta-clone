@@ -40,6 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 if(SecurityContextHolder.getContext().getAuthentication() == null){
 //                    creating a user object to store it in security context holder
                     User user = new User(claims.getSubject(),claims.get("email").toString(),null,null,null);
+                    user.setId(claims.get("id").toString());
                     UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user,null,null);
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 }

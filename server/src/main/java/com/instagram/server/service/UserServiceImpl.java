@@ -13,13 +13,19 @@ import com.instagram.server.requestResponse.JwtResponse;
 import com.instagram.server.requestResponse.SignUpRequest;
 import com.instagram.server.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +36,9 @@ public class UserServiceImpl implements UserService {
     private JwtUtil jwtUtil;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     private PostRepo postRepo;
+
+    @Value("${project.image}")
+    private String path;
     public UserServiceImpl(){}
 
     @Autowired
@@ -98,18 +107,38 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<CommonResponse> post(Post post, String token) {
+    public ResponseEntity<CommonResponse> post(MultipartFile file, String text, String token)  {
         String jwtToken = jwtUtil.getTokenFromRequest(token);
         if(jwtToken == null){
             return new ResponseEntity<>(new CommonResponse("Failed to upload post",true,HttpStatus.INTERNAL_SERVER_ERROR.value()),HttpStatus.INTERNAL_SERVER_ERROR);
         }
         Claims claims = jwtUtil.getAllClaimsFromToken(jwtToken);
         System.out.println("Id is: "+claims.get("id"));
-
         String userId = claims.get("id").toString();
+        String filePath = null;
+        try{
+            filePath=uploadFile(userId,file);
+        }
+        catch(Exception e){
+            return new ResponseEntity<>(new CommonResponse("Error while saving the file: "+e.getMessage(),true,HttpStatus.INTERNAL_SERVER_ERROR.value()),HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        Post post = new Post();
         post.setUserId(userId);
+        post.setCaption(text);
+        post.setPhotoUrl(filePath);
         postRepo.save(post);
         return new ResponseEntity<>(new CommonResponse("Post Uploaded Successfully",false,HttpStatus.OK.value()),HttpStatus.OK);
+    }
+    private String uploadFile(String userId, MultipartFile file) throws IOException {
+        String originalFileName=file.getOriginalFilename(); // original file name
+        String fullFilePath = path + File.separator+ userId +'-'+originalFileName; // file name with user id to fetch easily
+        File f = new File(path);
+        if (!f.exists()){
+            f.mkdir(); // create folder if doesn't exist
+        }
+
+        Files.copy(file.getInputStream(), Paths.get(fullFilePath)); // save file at the path
+        return fullFilePath;
     }
 
     @Override
