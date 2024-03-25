@@ -69,6 +69,9 @@ public class Post {
     public void setComments(List<PostComments> comments) {
         this.comments = comments;
     }
+    public void addComment(PostComments comment){
+        this.comments.add(comment);
+    }
 
     public String getUserId() {
         return userId;

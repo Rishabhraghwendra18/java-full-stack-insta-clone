@@ -1,19 +1,19 @@
 package com.instagram.server.collection;
 
 public class PostComments{
-    private int userId;
+    private String userId;
     private String comment;
 
-    public PostComments(int userId, String comment) {
+    public PostComments(String userId, String comment) {
         this.userId = userId;
         this.comment = comment;
     }
 
-    public int getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 
