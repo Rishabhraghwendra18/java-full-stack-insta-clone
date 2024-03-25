@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface PostService {
     public List<Post> feed();
-    public void likePost();
+    public Post likePost(String id, boolean isLiked);
     public void commentOnPost(String comment);
 }

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PostServiceImpl implements PostService{
@@ -18,13 +19,27 @@ public class PostServiceImpl implements PostService{
 
     @Override
     public List<Post> feed() {
-    List<Post> posts = postRepo.findAll();
-    return posts;
+        return postRepo.findAll();
     }
 
     @Override
-    public void likePost() {
-
+    public Post likePost(String id, boolean isLiked) {
+        Optional<Post> optionalPost=postRepo.findById(id);
+        if(optionalPost.isPresent()){
+            Post post = optionalPost.get();
+            if(isLiked){
+                post.setLikes(post.getLikes()+1);
+            }
+            else if (post.getLikes() -1 > 0){
+                post.setLikes(post.getLikes()-1);
+            }
+            else{
+                post.setLikes(0);
+            }
+            postRepo.save(post);
+            return post;
+        }
+        return null;
     }
 
     @Override
