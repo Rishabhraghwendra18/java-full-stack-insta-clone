@@ -113,7 +113,6 @@ public class UserServiceImpl implements UserService {
             return new ResponseEntity<>(new CommonResponse("Failed to upload post",true,HttpStatus.INTERNAL_SERVER_ERROR.value()),HttpStatus.INTERNAL_SERVER_ERROR);
         }
         Claims claims = jwtUtil.getAllClaimsFromToken(jwtToken);
-        System.out.println("Id is: "+claims.get("id"));
         String userId = claims.get("id").toString();
         String filePath = null;
         try{
@@ -136,9 +135,8 @@ public class UserServiceImpl implements UserService {
         if (!f.exists()){
             f.mkdir(); // create folder if doesn't exist
         }
-
         Files.copy(file.getInputStream(), Paths.get(fullFilePath)); // save file at the path
-        return fullFilePath;
+        return f.getAbsoluteFile()+"/"+userId+'-'+originalFileName;
     }
 
     @Override
