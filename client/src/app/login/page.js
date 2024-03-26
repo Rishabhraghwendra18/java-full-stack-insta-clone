@@ -1,5 +1,6 @@
 import React from 'react'
 import Image from "next/image";
+import Link from "next/link";
 import InstagramLogo from "../../assets/instagram-logo.png";
 import InputBox from '@/components/InputBox/InputBox';
 import Button from '@/components/Button/Button';
@@ -15,7 +16,7 @@ function Login() {
             <Button className={styles.button}>Log in</Button>
         </div>
         <hr></hr>
-        <p>Don't have an account? <a href='#'>Sign Up here!</a></p>
+        <p>Don't have an account? <Link href='/signup'>Sign Up here!</Link></p>
     </div>
   )
 }
