@@ -14,6 +14,8 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import ShareIcon from "@mui/icons-material/Share";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import Button from "../Button/Button";
+import styles from "./displayCard.module.css";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -91,7 +93,10 @@ export default function DisplayCard() {
           <Typography paragraph>
           (username) Comment 3
           </Typography>
-          <input placeholder="add comment"></input>
+          <div className={styles.comment_container}>
+          <input placeholder="Add comment" className={styles.input}></input>
+          <button className={styles.button}>Send</button>
+          </div>
         </CardContent>
       </Collapse>
     </Card>
