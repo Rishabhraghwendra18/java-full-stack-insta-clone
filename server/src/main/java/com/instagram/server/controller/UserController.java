@@ -10,6 +10,7 @@ import com.instagram.server.requestResponse.JwtRequest;
 import com.instagram.server.requestResponse.JwtResponse;
 import com.instagram.server.requestResponse.SignUpRequest;
 import com.instagram.server.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,8 +31,8 @@ public class UserController {
         return userService.signUp(user);
     }
     @PostMapping("/sign-in")
-    public ResponseEntity<JwtResponse> signIn(@RequestBody JwtRequest user){
-        return userService.signIn(user);
+    public ResponseEntity<JwtResponse> signIn(@RequestBody JwtRequest user, HttpServletRequest request){
+        return userService.signIn(user,request);
     }
     @PostMapping("/post")
     public ResponseEntity<CommonResponse> uploadPost(@RequestParam("file") MultipartFile file, @RequestParam("text") String text,@RequestHeader("Authorization") String token){

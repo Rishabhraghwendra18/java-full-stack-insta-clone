@@ -12,6 +12,7 @@ import com.instagram.server.requestResponse.JwtRequest;
 import com.instagram.server.requestResponse.JwtResponse;
 import com.instagram.server.requestResponse.SignUpRequest;
 import com.instagram.server.utils.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -73,7 +74,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<JwtResponse> signIn(JwtRequest jwtRequest) {
+    public ResponseEntity<JwtResponse> signIn(JwtRequest jwtRequest, HttpServletRequest request) {
         if(jwtRequest.getEmail() == null){
             throw new MissingFieldException("Email is missing");
         }
@@ -85,6 +86,7 @@ public class UserServiceImpl implements UserService {
             if(bCryptPasswordEncoder.matches(jwtRequest.getPassword(),loggedInUser.getPassword())){
                 String token = jwtUtil.generateToken(loggedInUser);
                 generateRefreshTokenAndSaveToDatabase(loggedInUser);
+                request.setAttribute("Authorization","Bearer "+token);
                 JwtResponse response = new JwtResponse(token,loggedInUser.getUsername(),null);
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }
