@@ -22,9 +22,11 @@ function Login() {
       const res = await signIn(userData);
       console.log("res data: ",res.data);
       const jwtToken = res.data?.token;
+      const expirationDate = res.data?.expirationDate;
       console.log("token: ",jwtToken);
       setCookie('Authorization', `Bearer ${jwtToken}`,{
         // httpOnly:true,
+        expires:new Date(expirationDate)
       });
 
       // cookies.set('Authorization',`Bearer ${jwtToken}`,{path:'/',httpOnly:true,sameSite:'strict'});
