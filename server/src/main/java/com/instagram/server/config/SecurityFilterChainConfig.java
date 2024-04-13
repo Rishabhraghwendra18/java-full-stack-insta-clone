@@ -10,12 +10,20 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.Arrays;
 
 @Configuration
 public class SecurityFilterChainConfig {
@@ -47,17 +55,40 @@ public SecurityFilterChainConfig() {}
     }
 
     @Bean
+    public CorsConfigurationSource corsConfigurationSource(){
+    CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3001"));
+        configuration.setAllowedMethods(Arrays.asList("GET","POST"));
+        UrlBasedCorsConfigurationSource source= new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**",configuration);
+        return source;
+    }
+    @Bean
+    public WebMvcConfigurer webMvcConfigurer(){
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**").allowedOrigins("http://localhost:3001/");
+            }
+        };
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         // disable cors
-        httpSecurity.cors(AbstractHttpConfigurer::disable);
+//        httpSecurity.cors(cors -> cors.configurationSource(corsConfigurationSource()));
+//        httpSecurity.cors(AbstractHttpConfigurer::disable);
 
         // disable csrf
-        httpSecurity.csrf(AbstractHttpConfigurer::disable);
+//        httpSecurity.csrf(AbstractHttpConfigurer::disable);
         httpSecurity.authorizeHttpRequests(
                 requestMatchers -> requestMatchers.requestMatchers("/user/sign-up").permitAll()
                         .requestMatchers("/user/sign-in").permitAll()
                         .anyRequest().authenticated()
-        );
+        )
+                .cors(cors->cors.disable())
+//                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                        .csrf(AbstractHttpConfigurer::disable);
 
 //        Authentication Entry Point -> means exception handler for this config
         httpSecurity.exceptionHandling(

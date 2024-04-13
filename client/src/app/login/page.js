@@ -6,7 +6,9 @@ import InstagramLogo from "../../assets/instagram-logo.png";
 import InputBox from '@/components/InputBox/InputBox';
 import Button from '@/components/Button/Button';
 import { signIn } from '@/service/userService';
+import { setCookie } from 'cookies-next';
 import styles from "./page.module.css"
+
 
 function Login() {
   const [email, setEmail] = useState();
@@ -19,6 +21,13 @@ function Login() {
       }
       const res = await signIn(userData);
       console.log("res data: ",res.data);
+      const jwtToken = res.data?.token;
+      console.log("token: ",jwtToken);
+      setCookie('Authorization', `Bearer ${jwtToken}`,{
+        // httpOnly:true,
+      });
+
+      // cookies.set('Authorization',`Bearer ${jwtToken}`,{path:'/',httpOnly:true,sameSite:'strict'});
     } catch (error) {
       console.log("Error while login in: ",error)
     }

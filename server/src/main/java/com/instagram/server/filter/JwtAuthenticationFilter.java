@@ -31,12 +31,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
+//        response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
+        response.setHeader("Access-Control-Allow-Origin", "http://localhost:3001");
         response.setHeader("Access-Control-Allow-Credentials", "true");
         response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
         response.setHeader("Access-Control-Max-Age", "3600");
         response.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With, remember-me");
-        var jwtToken = getTokenFromRequest(request);
+//        response.setHeader("Cache-Control","no-transform, public, max-age=86400");
+        System.out.println("Request is: "+request.getHeader(HttpHeaders.AUTHORIZATION));
+        String jwtToken = getAuthorizationCookie(request);
+        jwtToken = getTokenFromRequest(jwtToken);
+        System.out.println("JWT Token: "+jwtToken);
         if (jwtToken != null){
             try{
                 boolean isTokenValid = jwtUtil.validateToken(jwtToken);
@@ -57,14 +62,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         filterChain.doFilter(request, response);
     }
-
-    private String getTokenFromRequest(HttpServletRequest request) {
-//        Extract authentication header
-        var authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+    private String getAuthorizationCookie(HttpServletRequest request){
+        var cookies = request.getCookies();
+        if(cookies == null) return null;
+        for (var cookie: cookies){
+            if (cookie.getName().equals("Authorization")){
+                return cookie.getValue();
+            }
+        }
+        return null;
+    }
+    private String getTokenFromRequest(String authHeader) {
+        if (authHeader == null) return null;
 
 //        Bearer <JWT Token>
-        if(StringUtils.hasText(authHeader) && authHeader.startsWith("Bearer ")){
-        return authHeader.substring(7);
+        if(StringUtils.hasText(authHeader) && authHeader.startsWith("Bearer%20")){
+            // %20 in end because after Bearer there is space which is replaced by %20 in cookie
+        return authHeader.substring(9);
         }
         return null;
     }

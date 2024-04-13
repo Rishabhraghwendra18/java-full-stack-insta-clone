@@ -12,7 +12,9 @@ import com.instagram.server.requestResponse.JwtRequest;
 import com.instagram.server.requestResponse.JwtResponse;
 import com.instagram.server.requestResponse.SignUpRequest;
 import com.instagram.server.utils.JwtUtil;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -74,7 +76,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<JwtResponse> signIn(JwtRequest jwtRequest, HttpServletRequest request) {
+    public ResponseEntity<JwtResponse> signIn(JwtRequest jwtRequest, HttpServletResponse clientResponse) {
         if(jwtRequest.getEmail() == null){
             throw new MissingFieldException("Email is missing");
         }
@@ -86,16 +88,24 @@ public class UserServiceImpl implements UserService {
             if(bCryptPasswordEncoder.matches(jwtRequest.getPassword(),loggedInUser.getPassword())){
                 String token = jwtUtil.generateToken(loggedInUser);
                 generateRefreshTokenAndSaveToDatabase(loggedInUser);
-                request.setAttribute("Authorization","Bearer "+token);
-                JwtResponse response = new JwtResponse(token,loggedInUser.getUsername(),null);
+                Cookie cookie = new Cookie("Authorization",token);
+//                cookie.setMaxAge(jwtUtil.getExpirationDateFromToken(token));
+                cookie.setHttpOnly(true);
+                cookie.setPath("/");
+                cookie.setDomain("localhost");
+                cookie.setSecure(false);
+                clientResponse.addCookie(cookie);
+
+                JwtResponse response = new JwtResponse(token,loggedInUser.getUsername(),null,jwtUtil.getExpirationDateFromToken(token));
+
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }
             else {
-                JwtResponse response = new JwtResponse(null,null,"Password don't match");
+                JwtResponse response = new JwtResponse(null,null,"Password don't match",null);
                 return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);
             }
         }
-        JwtResponse response = new JwtResponse(null,null,"User not found");
+        JwtResponse response = new JwtResponse(null,null,"User not found",null);
         return new ResponseEntity<>(response,HttpStatus.NOT_FOUND);
     }
     private void generateRefreshTokenAndSaveToDatabase(User user){
