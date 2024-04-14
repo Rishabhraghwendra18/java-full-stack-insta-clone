@@ -13,6 +13,7 @@ public class Post {
     @Id
     private String id;
     private String photoUrl;
+    private String fileName;
     private String caption;
     private int likes;
     private List<PostComments> comments;
@@ -22,8 +23,9 @@ public class Post {
         this.comments= new ArrayList<>();
     }
 
-    public Post(String photoUrl, String caption, int likes, List<PostComments> comments, String userId) {
+    public Post(String photoUrl, String fileName,String caption, int likes, List<PostComments> comments, String userId) {
         this.photoUrl = photoUrl;
+        this.fileName = fileName;
         this.caption = caption;
         this.likes = likes;
         this.comments = comments;
@@ -79,6 +81,14 @@ public class Post {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
     @Override

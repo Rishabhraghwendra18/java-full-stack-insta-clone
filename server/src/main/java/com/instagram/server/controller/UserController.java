@@ -36,7 +36,7 @@ public class UserController {
         return userService.signIn(user,clientResponse);
     }
     @PostMapping("/post")
-    public ResponseEntity<CommonResponse> uploadPost(@RequestParam("file") MultipartFile file, @RequestParam("text") String text,@RequestHeader("Authorization") String token){
+    public ResponseEntity<CommonResponse> uploadPost(@RequestParam("file") MultipartFile file, @RequestParam("text") String text,@CookieValue("Authorization") String token){
         return userService.post(file,text,token);
     }
     @ExceptionHandler

@@ -8,4 +8,7 @@ const signUp = async (userData)=>{
 const signIn = async (userData)=>{
     return await axios.post(`${baseUrl}/user/sign-in`,userData);
 }
-export {signIn,signUp}
+const post = async(formData)=>{
+    return await axios.post(`${baseUrl}/user/post`,formData,{withCredentials:true});
+}
+export {signIn,signUp,post}

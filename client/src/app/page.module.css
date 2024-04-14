@@ -10,8 +10,9 @@
 .main{
     /* height: 100%; */
     padding-top: 110px;
-    display: flex;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(1fr,6);
+    /* justify-content: center; */
 }
 .footer{
     position: fixed;

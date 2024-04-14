@@ -10,10 +10,20 @@ import { getFeed } from "@/service/homeService";
 
 export default function Home() {
   const [open, setOpen] = useState(false);
+  const [posts, setPosts] = useState([]);
   const handleOpen=()=>setOpen(true);
   const handleClose=()=>setOpen(false);
   useEffect(()=>{
-    getFeed().then(response=>console.log("feed: ",response.data)).catch(error=>console.log("Error while fetching feed: ",error));
+    getFeed().then(response=>{
+      console.log("feed: ",response.data);
+      const posts = response.data?.map(post=>(
+        {
+          ...post,
+          expanded:false
+        }
+      ))
+      setPosts(posts);
+    }).catch(error=>console.log("Error while fetching feed: ",error));
   },[])
   return (
     <>
@@ -21,7 +31,7 @@ export default function Home() {
         <Image src={InstagramTextLogo} width={200} height={'auto'} alt="Instagram logo"/>
       </div>
       <div className={styles.main}>
-      <DisplayCard/>
+      <DisplayCard posts={posts} setPosts={setPosts}/>
       </div>
       <div className={styles.footer}>
         <Button className={styles.button} onClick={handleOpen}>Create a Post</Button>

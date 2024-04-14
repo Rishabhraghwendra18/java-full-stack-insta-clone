@@ -1,4 +1,5 @@
 import {useState} from "react";
+import {post} from "@/service/userService";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
@@ -24,13 +25,19 @@ export default function BasicModal({
 }) {
     const [file, setFile] = useState();
     const [caption, setCaption] = useState(null);
-    const formSubmit=(event)=>{
+    const formSubmit= async (event)=>{
         event.preventDefault();
         console.log("file:: ",file);
         const formData = new FormData();
         formData.append('file',file);
         formData.append('fileName',file.name);
         formData.append('text',caption);
+        try {
+          const res = await post(formData);
+          console.log("uploading photo: ",res.data);
+        } catch (error) {
+          console.log("Error while uploading photo: ",error)
+        }
     }
   return (
     <Modal

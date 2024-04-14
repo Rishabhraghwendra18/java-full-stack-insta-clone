@@ -16,6 +16,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Button from "../Button/Button";
 import styles from "./displayCard.module.css";
+// import photo from "../../../../server/images/"
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -28,14 +29,18 @@ const ExpandMore = styled((props) => {
   }),
 }));
 
-export default function DisplayCard() {
-  const [expanded, setExpanded] = useState(false);
+export default function DisplayCard({posts,setPosts}) {
 
-  const handleExpandClick = () => {
-    setExpanded(!expanded);
+  const handleExpandClick = (index) => {
+    const postUpdate=[...posts];
+    postUpdate[index].expanded=!postUpdate[index].expanded;
+    setPosts(postUpdate);
   };
   return (
-    <Card sx={{ maxWidth: 345 }}>
+    <div className={styles.main}>
+    {posts?.map((post,index)=>(
+
+    <Card sx={{ maxWidth: 345 }} key={index}>
       <CardHeader
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
@@ -52,9 +57,10 @@ export default function DisplayCard() {
       />
       <CardMedia
         component="img"
-        height="194"
-        image="/static/images/cards/paella.jpg"
-        alt="Paella dish"
+        width={194}
+        height="auto"
+        src={`/images/${post?.fileName}`}
+        alt={post?.caption}
       />
       <CardActions disableSpacing>
         <IconButton aria-label="add to favorites">
@@ -66,7 +72,7 @@ export default function DisplayCard() {
       </CardActions>
       <CardContent sx={{paddingTop:0}}>
         <Typography variant="body2" color="text.secondary">
-          (User here) Perfect Caption
+          (User here) {post?.caption}
         </Typography>
       </CardContent>
       <CardActions disableSpacing>
@@ -74,15 +80,15 @@ export default function DisplayCard() {
           See comments..
         </Typography>
         <ExpandMore
-          expand={expanded}
-          onClick={handleExpandClick}
-          aria-expanded={expanded}
+          expand={post?.expanded}
+          onClick={()=>handleExpandClick(index)}
+          aria-expanded={post?.expanded}
           aria-label="show more"
         >
           <ExpandMoreIcon />
         </ExpandMore>
       </CardActions>
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
+      <Collapse in={post?.expanded} timeout="auto" unmountOnExit>
         <CardContent>
           <Typography paragraph>
             (username) Comment 1
@@ -100,5 +106,7 @@ export default function DisplayCard() {
         </CardContent>
       </Collapse>
     </Card>
+    ))}
+    </div>
   );
 }

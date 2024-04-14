@@ -127,6 +127,7 @@ public class UserServiceImpl implements UserService {
         Claims claims = jwtUtil.getAllClaimsFromToken(jwtToken);
         String userId = claims.get("id").toString();
         String filePath = null;
+        String fileName=userId+'-'+file.getOriginalFilename();
         try{
             filePath=uploadFile(userId,file);
         }
@@ -137,6 +138,7 @@ public class UserServiceImpl implements UserService {
         post.setUserId(userId);
         post.setCaption(text);
         post.setPhotoUrl(filePath);
+        post.setFileName(fileName);
         postRepo.save(post);
         return new ResponseEntity<>(new CommonResponse("Post Uploaded Successfully",false,HttpStatus.OK.value()),HttpStatus.OK);
     }
