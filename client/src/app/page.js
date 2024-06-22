@@ -1,6 +1,7 @@
 'use client'
 import { useState,useEffect } from "react";
 import Image from "next/image";
+import {Snackbar} from "@mui/material"
 import styles from "./page.module.css";
 import InstagramTextLogo from "../assets/instagram-text.png";
 import Button from "@/components/Button/Button";
@@ -11,6 +12,9 @@ import { getFeed } from "@/service/homeService";
 export default function Home() {
   const [open, setOpen] = useState(false);
   const [posts, setPosts] = useState([]);
+  const [openSnackBar, setOpenSnackBar] = useState(false);
+  const [snackBarMessage, setSnackBarMessage] = useState();
+
   const handleOpen=()=>setOpen(true);
   const handleClose=()=>setOpen(false);
   useEffect(()=>{
@@ -19,11 +23,14 @@ export default function Home() {
       const posts = response.data?.map(post=>(
         {
           ...post,
-          expanded:false
+          expanded:false,
+          isLiked:false
         }
       ))
       setPosts(posts);
-    }).catch(error=>console.log("Error while fetching feed: ",error));
+    }).catch(error=>{
+      console.log("Error while fetching feed: ",error)
+    });
   },[])
   return (
     <>
@@ -36,7 +43,18 @@ export default function Home() {
       <div className={styles.footer}>
         <Button className={styles.button} onClick={handleOpen}>Create a Post</Button>
       </div>
-      <Modal open={open} handleClose={handleClose} handleOpen={handleOpen}></Modal>
+      <Modal open={open} handleClose={handleClose} handleOpen={handleOpen} setOpenSnackBar={setOpenSnackBar} setSnackBarMessage={setSnackBarMessage}></Modal>
+      <Snackbar
+        anchorOrigin={{ vertical:'top', horizontal:'right' }}
+        open={openSnackBar}
+        onClose={()=>{
+          setOpenSnackBar(false)
+          setSnackBarMessage()
+          handleClose()
+        }}
+        message={snackBarMessage}
+        key={'top' + 'right'}
+      />
     </>
   );
 }

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import {Snackbar} from "@mui/material"
 import { styled } from "@mui/material/styles";
 import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
@@ -16,6 +17,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Button from "../Button/Button";
 import styles from "./displayCard.module.css";
+import { likePost,commentPost } from "@/service/homeService";
 // import photo from "../../../../server/images/"
 
 const ExpandMore = styled((props) => {
@@ -30,12 +32,47 @@ const ExpandMore = styled((props) => {
 }));
 
 export default function DisplayCard({posts,setPosts}) {
+  const [openSnackBar, setOpenSnackBar] = useState(false);
+  const [snackBarMessage, setSnackBarMessage] = useState();
+  const [userComment, setUserComment] = useState();
 
   const handleExpandClick = (index) => {
     const postUpdate=[...posts];
     postUpdate[index].expanded=!postUpdate[index].expanded;
     setPosts(postUpdate);
   };
+  const handleLikePost = async (post,index)=>{
+    const likedPostList = [...posts];
+    likedPostList[index].isLiked = !likedPostList[index].isLiked;
+    try {
+      let payload={
+        postId:post?.id,
+        isLiked:likedPostList[index].isLiked
+      }
+      const response = await likePost(payload);
+      setPosts(likePost);
+      console.log("liked post successfully: ",response.data);
+    } catch (error) {
+      console.log("Error while liking the post: ",error);
+      setOpenSnackBar(true);
+      setSnackBarMessage("Error while liking the post");
+    }
+  }
+  const handleAddComment = async (post)=>{
+    try {
+      let payload={
+        postId:post?.id,
+        comment:userComment
+      }
+      const response = await commentPost(payload);
+      console.log("Comment added successfully");
+      setUserComment();
+    } catch (error) {
+      console.log("Error while commenting on the post: ",error);
+      setOpenSnackBar(true);
+      setSnackBarMessage("Error while commenting on the post");
+    }
+  }
   return (
     <div className={styles.main}>
     {posts?.map((post,index)=>(
@@ -63,7 +100,7 @@ export default function DisplayCard({posts,setPosts}) {
         alt={post?.caption}
       />
       <CardActions disableSpacing>
-        <IconButton aria-label="add to favorites">
+        <IconButton aria-label="add to favorites" onClick={()=>handleLikePost(post,index)}>
           <FavoriteIcon />
         </IconButton>
         <IconButton aria-label="share">
@@ -100,13 +137,23 @@ export default function DisplayCard({posts,setPosts}) {
           (username) Comment 3
           </Typography>
           <div className={styles.comment_container}>
-          <input placeholder="Add comment" className={styles.input}></input>
-          <button className={styles.button}>Send</button>
+          <input placeholder="Add comment" className={styles.input} onChange={(e)=>setUserComment(e.target.value)}></input>
+          <button className={styles.button} onClick={()=>handleAddComment(post)}>Send</button>
           </div>
         </CardContent>
       </Collapse>
     </Card>
     ))}
+    <Snackbar
+        anchorOrigin={{ vertical:'top', horizontal:'right' }}
+        open={openSnackBar}
+        onClose={()=>{
+          setOpenSnackBar(false)
+          setSnackBarMessage()
+        }}
+        message={snackBarMessage}
+        key={'top' + 'right'}
+      />
     </div>
   );
 }

@@ -6,6 +6,7 @@ import com.instagram.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -58,7 +59,7 @@ public SecurityFilterChainConfig() {}
     public CorsConfigurationSource corsConfigurationSource(){
     CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:3001"));
-        configuration.setAllowedMethods(Arrays.asList("GET","POST"));
+        configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","OPTIONS"));
         UrlBasedCorsConfigurationSource source= new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**",configuration);
         return source;
@@ -68,7 +69,7 @@ public SecurityFilterChainConfig() {}
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**").allowedOrigins("http://localhost:3001/");
+                registry.addMapping("/**").allowedOrigins("http://localhost:3001").allowedMethods("GET","POST","PUT","DELETE","OPTIONS");
             }
         };
     }
@@ -81,13 +82,15 @@ public SecurityFilterChainConfig() {}
 
         // disable csrf
 //        httpSecurity.csrf(AbstractHttpConfigurer::disable);
+//        .cors(AbstractHttpConfigurer::disable)
         httpSecurity.authorizeHttpRequests(
                 requestMatchers -> requestMatchers.requestMatchers("/user/sign-up").permitAll()
                         .requestMatchers("/user/sign-in").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()
+
                         .anyRequest().authenticated()
         )
-                .cors(cors->cors.disable())
-//                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
                         .csrf(AbstractHttpConfigurer::disable);
 
 //        Authentication Entry Point -> means exception handler for this config

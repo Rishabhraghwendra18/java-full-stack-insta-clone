@@ -11,11 +11,13 @@ const getFeed = async ()=>{
 }
     );
 }
-const likePost = async (postId,isLiked)=>{
-    return await axios.post(`${baseUrl}/home/like/${postId}`,{isLiked});
+const likePost = async (payload)=>{
+    return await axios.post(`${baseUrl}/home/like/`,payload,{
+        withCredentials:true
+    });
 }
-const commentPost = async (postId,comment)=>{
-    return await axios.post(`${baseUrl}/home/comment/${postId}`,{comment});
+const commentPost = async (payload)=>{
+    return await axios.post(`${baseUrl}/home/comment/`,payload,{withCredentials:true});
 }
 export {
     getFeed,

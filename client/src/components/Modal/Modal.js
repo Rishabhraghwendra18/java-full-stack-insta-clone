@@ -22,6 +22,8 @@ export default function BasicModal({
   handleOpen = () => {},
   handleClose = () => {},
   open,
+  setSnackBarMessage,
+  setOpenSnackBar
 }) {
     const [file, setFile] = useState();
     const [caption, setCaption] = useState(null);
@@ -35,8 +37,12 @@ export default function BasicModal({
         try {
           const res = await post(formData);
           console.log("uploading photo: ",res.data);
+          setOpenSnackBar(true);
+          setSnackBarMessage("Uploaded Successfully");
         } catch (error) {
           console.log("Error while uploading photo: ",error)
+          setOpenSnackBar(true);
+          setSnackBarMessage("Upload Failed");
         }
     }
   return (

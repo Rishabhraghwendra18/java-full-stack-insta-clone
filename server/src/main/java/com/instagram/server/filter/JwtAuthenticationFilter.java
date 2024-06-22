@@ -34,25 +34,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 //        response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
         response.setHeader("Access-Control-Allow-Origin", "http://localhost:3001");
         response.setHeader("Access-Control-Allow-Credentials", "true");
-        response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
+        response.setHeader("Access-Control-Allow-Methods", "GET, POST , PUT , DELETE , OPTIONS");
         response.setHeader("Access-Control-Max-Age", "3600");
         response.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With, remember-me");
 //        response.setHeader("Cache-Control","no-transform, public, max-age=86400");
         System.out.println("Request is: "+request.getHeader(HttpHeaders.AUTHORIZATION));
         String jwtToken = getAuthorizationCookie(request);
         jwtToken = getTokenFromRequest(jwtToken);
-        System.out.println("JWT Token: "+jwtToken);
+        System.out.println("JWT Token123: "+jwtToken);
         if (jwtToken != null){
             try{
                 boolean isTokenValid = jwtUtil.validateToken(jwtToken);
+                System.out.println("TOken is valid: "+isTokenValid);
                 if(isTokenValid){
                     Claims claims = jwtUtil.getAllClaimsFromToken(jwtToken);
                 if(SecurityContextHolder.getContext().getAuthentication() == null){
+                    System.out.println("In security context check");
 //                    creating a user object to store it in security context holder
                     User user = new User(claims.getSubject(),claims.get("email").toString(),null,null,null);
                     user.setId(claims.get("id").toString());
                     UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user,null,null);
                     SecurityContextHolder.getContext().setAuthentication(auth);
+                    System.out.println("Setted the security context: "+auth.toString());
                 }
                 }
             }
@@ -60,6 +63,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 System.out.println("Exception in doFilterInternal: "+e.getMessage());
             }
         }
+        System.out.println("Going to next filter");
         filterChain.doFilter(request, response);
     }
     private String getAuthorizationCookie(HttpServletRequest request){

@@ -1,6 +1,7 @@
 'use client'
 import {useState} from "react";
 import Image from "next/image";
+import {Snackbar} from "@mui/material"
 import Link from "next/link";
 import InstagramLogo from "../../assets/instagram-logo.png";
 import InputBox from "@/components/InputBox/InputBox";
@@ -12,6 +13,9 @@ function SignUp() {
   const [username, setUsername] = useState();
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
+  const [openSnackBar, setOpenSnackBar] = useState(false);
+  const [snackBarMessage, setSnackBarMessage] = useState();
+
   const handleSignUp = async ()=>{
     try {
       let userData={
@@ -22,8 +26,12 @@ function SignUp() {
       }
       const res = await signUp(userData);
       console.log("response on signUp: ",res.data);
+      setOpenSnackBar(true);
+      setSnackBarMessage(res.data.message);
     } catch (error) {
       console.log("Error while sign up: ",error);
+      setOpenSnackBar(true);
+      setSnackBarMessage("Error while creating account");
     }
   }
   return (
@@ -44,6 +52,16 @@ function SignUp() {
       <p style={{textAlign:'center'}}>
         Have an account? <Link href="/login">Log In here!</Link>
       </p>
+      <Snackbar
+        anchorOrigin={{ vertical:'top', horizontal:'right' }}
+        open={openSnackBar}
+        onClose={()=>{
+          setOpenSnackBar(false)
+          setSnackBarMessage()
+        }}
+        message={snackBarMessage}
+        key={'top' + 'right'}
+      />
     </div>
   );
 }

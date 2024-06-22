@@ -1,5 +1,6 @@
 'use client'
 import {useState} from 'react'
+import {Snackbar} from "@mui/material"
 import Image from "next/image";
 import Link from "next/link";
 import InstagramLogo from "../../assets/instagram-logo.png";
@@ -13,6 +14,9 @@ import styles from "./page.module.css"
 function Login() {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
+  const [openSnackBar, setOpenSnackBar] = useState(false);
+  const [snackBarMessage, setSnackBarMessage] = useState();
+
   const handleLogin = async () =>{
     try {
       const userData ={
@@ -28,10 +32,13 @@ function Login() {
         // httpOnly:true,
         expires:new Date(expirationDate)
       });
-
+      setOpenSnackBar(true);
+      setSnackBarMessage("Account logged in");
       // cookies.set('Authorization',`Bearer ${jwtToken}`,{path:'/',httpOnly:true,sameSite:'strict'});
     } catch (error) {
       console.log("Error while login in: ",error)
+      setOpenSnackBar(true);
+      setSnackBarMessage("Error while logging in");
     }
   }
   return (
@@ -44,6 +51,16 @@ function Login() {
         </div>
         <hr></hr>
         <p>Don't have an account? <Link href='/signup'>Sign Up here!</Link></p>
+        <Snackbar
+        anchorOrigin={{ vertical:'top', horizontal:'right' }}
+        open={openSnackBar}
+        onClose={()=>{
+          setOpenSnackBar(false)
+          setSnackBarMessage()
+        }}
+        message={snackBarMessage}
+        key={'top' + 'right'}
+      />
     </div>
   )
 }
